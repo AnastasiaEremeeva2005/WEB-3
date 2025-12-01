@@ -4,6 +4,8 @@
 
 Группа: К3344
 
+Поток: web 3.1
+
 Ссылка на деплой: https://anastasiaeremeeva2005.github.io/WEB-3/
 
 Ссылку с видеодемонстрацией рабочего приложения: https://drive.google.com/drive/folders/1-4Nb6jIDQ1ggjAiqrzNqfHAp_wp_tZvy
