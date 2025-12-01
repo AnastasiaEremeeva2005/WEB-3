@@ -8,13 +8,43 @@
   </style>
   </head>
 <body>
-  <div class="app">
+    <div class="app">
     <header>
-   </header>
+      <h1>2048 — Lab</h1>
+      <div class="controls">
+        <div class="scoreboard">
+          <div class="score">Счёт: <span id="score">0</span></div>
+          <div class="score">Лучший: <span id="best">0</span></div>
+        </div>
+        <div style="width:12px"></div>
+        <div class="actions">
+          <button id="undoBtn" class="secondary">Undo</button>
+          <button id="restartBtn">Restart</button>
+          <button id="leaderBtn" class="secondary">Leaderboards</button>
+        </div>
+      </div>
+    </header>
    <div class="main">
-  <div class="board-wrap">
-    <div id="board" class="board"></div>
-   </div>
+       <div class="board-wrap">
+        <div id="board" class="board"></div>
+         </div>
+        <div class="panel">
+        <div class="info">
+          <p>Управление: стрелки (desktop), свайпы или кнопки (мобилка)</p>
+          <p>Функции: undo (отмена одного хода), сохранение состояния автоматически, лидерборд сохраняется в localStorage</p>
+        </div>
+
+        <div class="mobile-controls" id="mobileControls">
+          <button data-dir="up">▲</button>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button data-dir="left">◀</button>
+            <button data-dir="down">▼</button>
+            <button data-dir="right">▶</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
     </script>
         </body>
