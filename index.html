@@ -44,6 +44,37 @@
         </div>
       </div>
     </div>
+          <div class="modal-back" id="modalBack">
+      <div class="modal" id="modal">
+        <div id="modalContent">
+          <h3 id="modalTitle">Game over</h3>
+          <p id="modalMsg">Введите имя чтобы сохранить рекорд</p>
+          <div class="row" id="saveRow">
+            <input id="playerName" type="text" placeholder="Ваше имя" />
+            <button id="saveScoreBtn">Сохранить</button>
+          </div>
+          <div id="savedMsg" class="hidden">Ваш рекорд сохранён.</div>
+          <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+            <button id="modalRestart">Начать заново</button>
+            <button id="modalClose" class="secondary">Закрыть</button>
+          </div>
+        </div>
+      </div>
+    </div>
+          <div class="modal-back" id="leaderBack">
+      <div class="modal">
+        <h3>Топ рекордов</h3>
+        <table id="leaderTable">
+          <thead><tr><th>Имя</th><th>Очки</th><th>Дата</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div style="margin-top:12px;text-align:right">
+          <button id="clearLeaders" class="secondary">Очистить</button>
+          <button id="closeLeaders">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <script>
     </script>
