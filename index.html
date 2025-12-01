@@ -267,6 +267,167 @@
       for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) out[SIZE-1-c][r] = g[r][c];
       return out;
     }
+      function move(direction){
+    
+      if(gameOver) return;
+      let moved=false;
+      if(direction==='left') moved = moveLeft();
+      else if(direction==='right'){
+        grid = grid.map(row=>row.slice().reverse());
+        moved = moveLeft();
+        grid = grid.map(row=>row.slice().reverse());
+      } else if(direction==='up'){
+        grid = rotateGridClockwise(grid);
+        moved = moveLeft();
+        grid = rotateGridCounter(grid);
+      } else if(direction==='down'){
+        grid = rotateGridCounter(grid);
+        moved = moveLeft();
+        grid = rotateGridClockwise(grid);
+      }
+      if(moved) drawBoard();
+    }
+
+    function sameGrid(a,b){
+      for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(a[r][c]!==b[r][c]) return false;
+      return true;
+    }
+
+    function canMove(){
+
+      for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(grid[r][c]===0) return true;
+    
+      for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE-1;c++) if(grid[r][c]===grid[r][c+1]) return true;
+      for(let c=0;c<SIZE;c++) for(let r=0;r<SIZE-1;r++) if(grid[r][c]===grid[r+1][c]) return true;
+      return false;
+    }
+
+    function gameOverNow(){
+      gameOver = true;
+      saveGame();
+      showModal();
+    }
+
+  
+    function startNew(){
+      grid = createEmpty();
+      score = 0;
+      prevState = null;
+      gameOver = false;
+      const initial = Math.floor(Math.random()*3)+1; 
+      addRandomTiles(initial);
+      saveGame();
+      drawBoard();
+    }
+
+    document.getElementById('restartBtn').addEventListener('click',()=>{ startNew(); closeModal(); });
+    document.getElementById('undoBtn').addEventListener('click',()=>{
+      if(prevState && !gameOver){
+        grid = cloneGrid(prevState.grid);
+        score = prevState.score;
+        prevState = null;
+        drawBoard();
+        saveGame();
+      }
+    });
+
+
+    function showModal(){
+      modalBack.style.display='flex';
+      document.getElementById('playerName').value='';
+      document.getElementById('savedMsg').classList.add('hidden');
+      document.getElementById('saveRow').classList.remove('hidden');
+      document.getElementById('modalTitle').textContent='Игра окончена';
+      document.getElementById('modalMsg').textContent=`Ваш счёт: ${score}`;
+    
+      document.getElementById('mobileControls').style.display='none';
+    }
+    function closeModal(){ modalBack.style.display='none'; document.getElementById('mobileControls').style.display='flex'; }
+
+    document.getElementById('modalClose').addEventListener('click',closeModal);
+    document.getElementById('modalRestart').addEventListener('click',()=>{ startNew(); closeModal(); });
+
+    document.getElementById('saveScoreBtn').addEventListener('click',()=>{
+      const name = document.getElementById('playerName').value.trim() || 'Аноним';
+      saveLeader(name, score);
+      document.getElementById('saveRow').classList.add('hidden');
+      document.getElementById('savedMsg').classList.remove('hidden');
+    });
+
+
+    function getLeaders(){
+      return JSON.parse(localStorage.getItem('2048_leaders')||'[]');
+    }
+    function saveLeader(name, pts){
+      const list = getLeaders();
+      list.push({name,pts,date:(new Date()).toLocaleString()});
+      list.sort((a,b)=>b.pts - a.pts);
+      while(list.length>10) list.pop();
+      localStorage.setItem('2048_leaders', JSON.stringify(list));
+      renderLeaders();
+    }
+    function renderLeaders(){
+      const tbody = document.querySelector('#leaderTable tbody');
+      tbody.innerHTML='';
+      const list = getLeaders();
+      for(const row of list){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(row.name)}</td><td>${row.pts}</td><td>${row.date}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    document.getElementById('leaderBtn').addEventListener('click',()=>{ leaderBack.style.display='flex'; document.getElementById('mobileControls').style.display='none'; renderLeaders(); });
+    document.getElementById('closeLeaders').addEventListener('click',()=>{ leaderBack.style.display='none'; document.getElementById('mobileControls').style.display='flex'; });
+    document.getElementById('clearLeaders').addEventListener('click',()=>{ localStorage.removeItem('2048_leaders'); renderLeaders(); });
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+
+    window.addEventListener('keydown',(e)=>{
+      if(e.key.includes('Arrow')){
+        e.preventDefault();
+        if(e.key==='ArrowUp') move('up');
+        if(e.key==='ArrowDown') move('down');
+        if(e.key==='ArrowLeft') move('left');
+        if(e.key==='ArrowRight') move('right');
+      }
+    });
+
+
+    document.getElementById('mobileControls').addEventListener('click',(e)=>{
+      const b = e.target.closest('button'); if(!b) return;
+      const dir = b.dataset.dir; if(!dir) return;
+      move(dir);
+    });
+
+
+    (function addSwipe(){
+      let startX=0,startY=0;
+      boardEl.addEventListener('touchstart',e=>{
+        startX = e.changedTouches[0].clientX; startY = e.changedTouches[0].clientY;
+      },{passive:true});
+      boardEl.addEventListener('touchend',e=>{
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        if(Math.abs(dx) < 30 && Math.abs(dy) < 30) return;
+        if(Math.abs(dx) > Math.abs(dy)) move(dx>0? 'right':'left');
+        else move(dy>0? 'down':'up');
+      });
+    })();
+
+
+    function init(){
+      boardEl.style.setProperty('--board-size', getComputedStyle(document.documentElement).getPropertyValue('--board-size'));
+      if(!loadGame()) startNew();
+      drawBoard();
+      renderLeaders();
+
+      if(window.innerWidth<=720) document.getElementById('mobileControls').style.display = gameOver? 'none':'flex';
+    }
+
+   
+    window.addEventListener('beforeunload',()=>saveGame());
+
+    init();
     </script>
         </body>
 </html>
